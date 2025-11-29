@@ -16,6 +16,7 @@ function menu() {
 4. Delete Record
 5. Exit
 6. Search Records
+7. Sort Records
 =====================
   `);
 
@@ -66,7 +67,7 @@ function menu() {
         rl.close();
         break;
 
-      // ⭐⭐⭐ SEARCH FUNCTIONALITY ADDED HERE ⭐⭐⭐
+      // ⭐⭐⭐ SEARCH FUNCTIONALITY ⭐⭐⭐
       case '6':
         rl.question('Enter search keyword (Name or ID): ', keyword => {
           const all = db.listRecords();
@@ -89,6 +90,47 @@ function menu() {
           }
 
           menu();
+        });
+        break;
+
+      // ⭐⭐⭐ SORTING FUNCTIONALITY ⭐⭐⭐
+      case '7':
+        const allRecords = db.listRecords();
+        if (allRecords.length === 0) {
+          console.log('No records available to sort.');
+          return menu();
+        }
+
+        rl.question('Choose field to sort by (Name/Created): ', field => {
+          field = field.trim().toLowerCase();
+          if (field !== 'name' && field !== 'created') {
+            console.log('Invalid field choice.');
+            return menu();
+          }
+
+          rl.question('Choose order (Ascending/Descending): ', order => {
+            order = order.trim().toLowerCase();
+            if (order !== 'ascending' && order !== 'descending') {
+              console.log('Invalid order choice.');
+              return menu();
+            }
+
+            const sorted = [...allRecords].sort((a, b) => {
+              let valA = field === 'name' ? a.name.toLowerCase() : a.created;
+              let valB = field === 'name' ? b.name.toLowerCase() : b.created;
+
+              if (valA < valB) return order === 'ascending' ? -1 : 1;
+              if (valA > valB) return order === 'ascending' ? 1 : -1;
+              return 0;
+            });
+
+            console.log('\nSorted Records:');
+            sorted.forEach((r, i) => {
+              console.log(`${i + 1}. ID: ${r.id} | Name: ${r.name} | Created: ${r.created}`);
+            });
+
+            menu();
+          });
         });
         break;
 
