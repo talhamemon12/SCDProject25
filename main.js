@@ -15,11 +15,13 @@ function menu() {
 3. Update Record
 4. Delete Record
 5. Exit
+6. Search Records
 =====================
   `);
 
   rl.question('Choose option: ', ans => {
     switch (ans.trim()) {
+
       case '1':
         rl.question('Enter name: ', name => {
           rl.question('Enter value: ', value => {
@@ -33,7 +35,9 @@ function menu() {
       case '2':
         const records = db.listRecords();
         if (records.length === 0) console.log('No records found.');
-        else records.forEach(r => console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`));
+        else records.forEach(r =>
+          console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`)
+        );
         menu();
         break;
 
@@ -60,6 +64,32 @@ function menu() {
       case '5':
         console.log('👋 Exiting NodeVault...');
         rl.close();
+        break;
+
+      // ⭐⭐⭐ SEARCH FUNCTIONALITY ADDED HERE ⭐⭐⭐
+      case '6':
+        rl.question('Enter search keyword (Name or ID): ', keyword => {
+          const all = db.listRecords();
+          const search = keyword.toLowerCase();
+
+          const results = all.filter(r =>
+            r.name.toLowerCase().includes(search) ||
+            r.id.toString().includes(search)
+          );
+
+          if (results.length === 0) {
+            console.log(`❌ No records found for: "${keyword}"`);
+          } else {
+            console.log(`\nFound ${results.length} matching record(s):`);
+            results.forEach((r, i) => {
+              console.log(
+                `${i + 1}. ID: ${r.id} | Name: ${r.name} | Value: ${r.value} | Created: ${r.created}`
+              );
+            });
+          }
+
+          menu();
+        });
         break;
 
       default:
