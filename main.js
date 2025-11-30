@@ -1,5 +1,7 @@
 const readline = require('readline');
 const db = require('./db');
+const fs = require('fs'); // Add at top with other imports
+
 require('./events/logger'); // Initialize event logger
 
 const rl = readline.createInterface({
@@ -17,6 +19,7 @@ function menu() {
 5. Exit
 6. Search Records
 7. Sort Records
+8. Export Data
 =====================
   `);
 
@@ -133,6 +136,41 @@ function menu() {
           });
         });
         break;
+      case '8':
+  const data = db.listRecords();
+
+  if (data.length === 0) {
+    console.log('❌ No records available to export.');
+    return menu();
+  }
+
+  const timestamp = new Date().toISOString();
+  const header =
+`===== NodeVault Export =====
+File: export.txt
+Exported At: ${timestamp}
+Total Records: ${data.length}
+==============================
+
+`;
+
+  const body = data.map((r, i) =>
+    `${i + 1}. ID: ${r.id}\n   Name: ${r.name}\n   Value: ${r.value}\n   Created: ${r.created}\n`
+  ).join('\n');
+
+  const fileContent = header + body;
+
+  fs.writeFile('export.txt', fileContent, err => {
+    if (err) {
+      console.log('❌ Failed to export data:', err);
+    } else {
+      console.log('✅ Data exported successfully to export.txt.');
+    }
+    menu();
+  });
+
+  break;
+  
 
       default:
         console.log('Invalid option.');
