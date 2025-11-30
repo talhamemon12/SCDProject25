@@ -64,6 +64,7 @@ function menu() {
 8. Export Data
 9. List Backups
 10. Restore Backup
+11. View Vault Statistics
 =====================
   `);
 
@@ -312,6 +313,82 @@ Total Records: ${data.length}
             menu();
           }
         });
+        break;
+
+      // ⭐⭐⭐ VAULT STATISTICS ⭐⭐⭐
+      case '11':
+        const statsRecords = db.listRecords();
+        
+        if (statsRecords.length === 0) {
+          console.log('❌ No records available. Add some records to view statistics.');
+          return menu();
+        }
+
+        // Calculate total records
+        const totalRecords = statsRecords.length;
+
+        // Get last modified time from data.json
+        let lastModified = 'N/A';
+        try {
+          const dataFilePath = path.join(__dirname, 'data.json');
+          if (fs.existsSync(dataFilePath)) {
+            const stats = fs.statSync(dataFilePath);
+            lastModified = new Date(stats.mtime).toLocaleString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            });
+          }
+        } catch (error) {
+          lastModified = 'Unable to retrieve';
+        }
+
+        // Find longest name
+        let longestName = '';
+        let longestLength = 0;
+        statsRecords.forEach(r => {
+          if (r.name.length > longestLength) {
+            longestLength = r.name.length;
+            longestName = r.name;
+          }
+        });
+
+        // Find earliest and latest record creation dates
+        let earliestDate = null;
+        let latestDate = null;
+
+        statsRecords.forEach(r => {
+          const recordDate = new Date(r.created);
+          
+          if (!earliestDate || recordDate < earliestDate) {
+            earliestDate = recordDate;
+          }
+          
+          if (!latestDate || recordDate > latestDate) {
+            latestDate = recordDate;
+          }
+        });
+
+        // Format dates
+        const formatDate = (date) => {
+          return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        };
+
+        // Display statistics
+        console.log('\n📊 Vault Statistics:');
+        console.log('--------------------------');
+        console.log(`Total Records: ${totalRecords}`);
+        console.log(`Last Modified: ${lastModified}`);
+        console.log(`Longest Name: ${longestName} (${longestLength} characters)`);
+        console.log(`Earliest Record: ${formatDate(earliestDate)}`);
+        console.log(`Latest Record: ${formatDate(latestDate)}`);
+        console.log('--------------------------\n');
+
+        menu();
         break;
 
       default:
