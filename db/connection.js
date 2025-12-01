@@ -1,12 +1,14 @@
-// db/connection.js
 const mongoose = require('mongoose');
-
-const uri = 'mongodb://localhost:27017/nodevault';
+const { config } = require('../config/config');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(uri);
+    // Remove deprecated options - they're now defaults in Mongoose 6+
+    await mongoose.connect(config.mongodb.uri);
+    
     console.log('✅ MongoDB Connected Successfully!');
+    console.log(`📍 Connected to: ${mongoose.connection.host}`);
+    console.log(`🗄️  Database: ${mongoose.connection.name}`);
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
     process.exit(1);
@@ -14,12 +16,23 @@ const connectDB = async () => {
 };
 
 // Handle connection events
+mongoose.connection.on('connected', () => {
+  console.log('🔗 Mongoose connected to MongoDB');
+});
+
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB Disconnected');
+  console.log('⚠️  Mongoose disconnected from MongoDB');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB Error:', err);
+  console.error('❌ Mongoose connection error:', err);
+});
+
+// Handle process termination gracefully
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('🛑 MongoDB connection closed due to app termination');
+  process.exit(0);
 });
 
 module.exports = connectDB;

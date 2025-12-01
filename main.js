@@ -1,8 +1,11 @@
+require('dotenv').config(); // Load environment variables first
+
 const readline = require('readline');
 const db = require('./db');
 const fs = require('fs');
 const path = require('path');
 const connectDB = require('./db/connection');
+const { validateConfig } = require('./config/config');
 
 require('./events/logger'); // Initialize event logger
 
@@ -431,13 +434,19 @@ Total Records: ${data.length}
   });
 }
 
-// Initialize database connection and start menu
+// Initialize application
 (async () => {
   try {
+    // Validate configuration
+    validateConfig();
+    
+    // Connect to database
     await connectDB();
+    
+    // Start menu
     menu();
   } catch (error) {
-    console.error('Failed to start application:', error.message);
+    console.error('❌ Failed to start application:', error.message);
     process.exit(1);
   }
 })();

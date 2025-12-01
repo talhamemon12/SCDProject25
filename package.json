@@ -1,6 +1,20 @@
 {
+  "name": "nodevault",
+  "version": "1.0.0",
+  "description": "Secure vault management system with MongoDB",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "seed": "node seed.js",
+    "dev": "NODE_ENV=development node main.js",
+    "prod": "NODE_ENV=production node main.js"
+  },
+  "keywords": ["vault", "mongodb", "nodejs", "environment-variables"],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "mongodb": "^7.0.0",
-    "mongoose": "^9.0.0"
+    "dotenv": "^16.3.1",
+    "mongoose": "^8.0.0",
+    "mongodb": "^7.0.0"
   }
 }
