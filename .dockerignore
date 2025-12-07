@@ -1,13 +1,12 @@
 node_modules
 npm-debug.log
 .env
-.env.*
-.git
+
 .gitignore
 README.md
-*.md
+
 backups
 data
-export.txt
+
 .DS_Store
 Thumbs.db
